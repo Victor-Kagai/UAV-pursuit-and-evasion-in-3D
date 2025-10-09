@@ -15,17 +15,20 @@ class Vehicle:
 
     def _update_heading_and_speed(self):
         """Update heading angles and speed from velocity components"""
-        self._V = np.sqrt(self._vx**2 + self._vy**2 + self._vz**2) #Total speed magnitude of the vehicle
+        self._V = float(np.sqrt(self._vx**2 + self._vy**2 + self._vz**2))#Total speed magnitude of the vehicle
         
-        if self._V > 0:
+        if self._V > 0.0:
             # Horizontal heading (azimuth) - in degrees.
             """I settled for arctan2 given it solved an issue that was disturbing
             previously whare arctan by itself failed when vx=0, missing the right quadrant at timees,
             and also the undefined state for (0,0,0)"""
-            self._psi = np.rad2deg(np.arctan2(self._vy, self._vx))
+            self._psi = float(np.rad2deg(np.arctan2(self._vy, self._vx)))
+            horiz = float(np.sqrt(self._vx**2 + self._vy**2))
             # Vertical heading (elevation) - in degrees  
-            self._theta = np.rad2deg(np.arcsin(self._vz / self._V))
+            self._theta = float(np.rad2deg(np.arcsin(self._vz / self._V)))
         else:
+            """I added bits in the code so that I can tone down some of the errors that may be encountered
+            in real world scenarios basically in this part normalized psi to [-180, 180)"""
             self._psi = 0.0 #Compass heading
             self._theta = 0.0 #Elevation angle
         
@@ -97,7 +100,7 @@ class Vehicle:
     def V(self, value):
         self._V = value
         self._update_velocity_from_heading()
-        
+
     #Simple euler integration to update position by just multiplying current velocity with given time step
     def update_position(self, dt):
         """Integrate position over time step dt"""
@@ -112,3 +115,4 @@ class Vehicle:
     def get_velocity(self):
         """Return velocity as numpy array"""
         return np.array([self.vx, self.vy, self.vz])
+
