@@ -1,25 +1,24 @@
 import numpy as np
 
+
 def pure_pursuit_step(p_pos, t_pos, speed, dt, capture_radius):
     """
-    One step of pure pursuit.
-    p_pos, t_pos: np.array([x,y])
+    One step of 3D pure pursuit.
+    p_pos, t_pos: array-like [x, y, z]
     returns (new_p_pos, distance, captured: bool)
     """
-    d = t_pos - p_pos                     
-    dist = np.linalg.norm(d)          
+    p_pos = np.asarray(p_pos, dtype=float)
+    t_pos = np.asarray(t_pos, dtype=float)
+    if p_pos.shape != (3,) or t_pos.shape != (3,):
+        raise ValueError("p_pos and t_pos must be 3D vectors [x, y, z].")
 
-   
+    d = t_pos - p_pos
+    dist = np.linalg.norm(d)
+
     if dist <= capture_radius:
         return t_pos.copy(), dist, True
 
-   
-    if dist < 1e-9:
-        u = np.zeros_like(d)
-    else:
-        u = d / dist  
+    u = d / dist if dist >= 1e-9 else np.zeros(3)
 
-    
-    step_len = min(speed*dt, max(0.0, dist - capture_radius))
-    new_p = p_pos + u * step_len
-    return new_p, dist, False
+    step_len = min(speed * dt, max(0.0, dist - capture_radius))
+    return p_pos + u * step_len, dist, False
